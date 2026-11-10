@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Amor 💗</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Montserrat:ital,wght@0,300;0,400;0,600;1,300&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        roseGold: '#B76E79',
+                        softPink: '#FFF0F5',
+                        deepBurgundy: '#4A0E17',
+                        romanticRed: '#8B0000',
+                        blushPink: '#FFD1DC',
+                    },
+                    fontFamily: {
+                        cursive: ['Dancing Script', 'cursive'],
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Montserrat', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'sparkle': 'sparkle 2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        sparkle: {
+                            '0%, 100%': { opacity: '0.4', transform: 'scale(0.95)' },
+                            '50%': { opacity: '1', transform: 'scale(1.05)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Modern Glassmorphism Styling */
+        .glass {
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px 0 rgba(183, 110, 121, 0.15);
+        }
+
+        .glass-dark {
+            background: rgba(74, 14, 23, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* Particle Canvas Fix */
+        #canvas-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFF0F5;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #B76E79;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8B0000;
+        }
+
+        /* Flipping Card Effect */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* Gradient Glow */
+        .glow-effect {
+            box-shadow: 0 0 25px rgba(183, 110, 121, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-softPink via-white to-blushPink/30 text-gray-800 font-sans relative overflow-x-hidden">
+
+    <!-- Screen Welcome Overlay (Button to Start) -->
+    <div id="welcome-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center glass-dark transition-opacity duration-1000 px-4 text-center">
+        <div class="space-y-6 max-w-md">
+            <div class="w-20 h-20 mx-auto rounded-full bg-roseGold/20 flex items-center justify-center animate-bounce border border-roseGold/40">
+                <i class="fas fa-heart text-4xl text-roseGold"></i>
+            </div>
+            <h1 class="font-serif text-3xl md:text-4xl text-white font-bold">Mi Cami Hermosha</h1>
+            <p class="text-roseGold font-cursive text-2xl">Haz clic abajo para comenzar</p>
+            <button id="start-btn" onclick="startExperience()" class="px-8 py-4 bg-gradient-to-r from-roseGold to-romanticRed text-white font-bold text-lg rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 border border-white/20 glow-effect">
+                Mi Amor 💗
+            </button>
+        </div>
+    </div>
+
+    <!-- Interactive Heart Canvas Background -->
+    <canvas id="canvas-hearts"></canvas>
+
+    <!-- Floating Audio Control Player -->
+    <div class="fixed top-5 right-5 z-40">
+        <button id="music-toggle" class="glass px-4 py-3 rounded-full flex items-center space-x-3 shadow-lg hover:scale-105 transition duration-300 group border border-roseGold/30">
+            <i id="music-icon" class="fas fa-music text-roseGold animate-pulse"></i>
+            <span id="music-text" class="text-xs font-semibold text-deepBurgundy">Pausar / Sonido</span>
+            <div class="w-2 h-2 rounded-full bg-roseGold group-hover:scale-150 transition"></div>
+        </button>
+        <!-- Background Audio -->
+        <audio id="bg-audio" loop>
+            <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-piano-112188.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="fixed top-5 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-4xl glass rounded-full px-6 py-3 flex justify-between items-center shadow-sm">
+        <span class="font-cursive text-2xl font-bold text-deepBurgundy">Para Ti</span>
+        <div class="flex space-x-4 md:space-x-6 text-sm font-medium text-gray-700">
+            <a href="#hero" class="hover:text-roseGold transition">Inicio</a>
+            <a href="#reasons" class="hover:text-roseGold transition">Razones</a>
+            <a href="#coupons" class="hover:text-roseGold transition">Cupones</a>
+            <a href="#letter" class="hover:text-roseGold transition">Carta</a>
+            <a href="#wish1111" class="hover:text-roseGold transition font-bold text-roseGold">Amor💗</a>
+        </div>
+    </nav>
+
+    <!-- Main Hero Section with Special Message -->
+    <section id="hero" class="min-h-screen flex items-center justify-center relative pt-20 px-4">
+        <div class="text-center z-10 max-w-4xl mx-auto space-y-8">
+            <span class="inline-block px-5 py-1.5 rounded-full bg-roseGold/10 text-roseGold text-xs uppercase tracking-widest font-semibold border border-roseGold/20 animate-pulse">
+                Dedicatoria Especial
+            </span>
+            
+            <h1 class="font-serif text-3xl md:text-5xl font-bold text-deepBurgundy leading-relaxed md:leading-normal glass p-8 rounded-3xl shadow-lg border border-roseGold/30">
+                "Cada vez que escucho esto siempre queda en mi cabeza todo el tiempo que estoy contigo y todas las ganas que tengo de poder estar siempre junto a ti"
+            </h1>
+
+          <!-- Imagen con Enlace -->
+            <div class="hero-image-container">
+                <a href="https://open.spotify.com/playlist/7hX27MUVTqAYZ0joO3BT5T?si=j2YHa4VTTWmOml2_MYr0uQ" target="_blank" rel="noopener noreferrer" class="hero-image-link">
+                    <img id="hero-image" src="imagen1.jpg" alt="Momento Especial" class="max-w-full h-auto mx-auto rounded-2xl">
+                    <div class="hero-image-overlay">
+                        <span>Haz clic aquí 💗</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Reasons Flip Cards -->
+    <section id="reasons" class="py-24 px-4 max-w-5xl mx-auto relative z-10">
+        <div class="text-center mb-16">
+            <h2 class="font-serif text-4xl text-deepBurgundy font-bold">Razones Por Las Que Te Amo <p class="text-base font-normal mt-2">Son muchas las cosas que puedo decir, pero estas son unas de ellas.</p></h2>
+            <div class="w-16 h-1 bg-roseGold mx-auto mt-3 rounded-full"></div>
+            <p class="text-gray-500 text-sm mt-2">Haz clic en cada tarjeta para descubrir una razón</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            
+            <!-- Reason 1 -->
+            <div class="perspective-1000 h-48 cursor-pointer group" onclick="flipCard(this)">
+                <div class="card-inner relative w-full h-full transform-style-3d transition-transform duration-700">
+                    <div class="absolute inset-0 glass rounded-2xl p-6 flex flex-col justify-center items-center text-center border border-roseGold/30 backface-hidden">
+                        <i class="fas fa-heart text-3xl text-roseGold mb-3"></i>
+                        <h3 class="font-serif font-semibold text-deepBurgundy">Razón #1</h3>
+                        <p class="text-xs text-gray-500 mt-1">Haz clic para voltear</p>
+                    </div>
+                    <div class="absolute inset-0 glass-dark rounded-2xl p-6 flex items-center justify-center text-center rotate-y-180 backface-hidden">
+                        <p class="text-white text-sm font-medium">La forma en la que nos patina el coco siempre que estamos juntos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reason 2 -->
+            <div class="perspective-1000 h-48 cursor-pointer group" onclick="flipCard(this)">
+                <div class="card-inner relative w-full h-full transform-style-3d transition-transform duration-700">
+                    <div class="absolute inset-0 glass rounded-2xl p-6 flex flex-col justify-center items-center text-center border border-roseGold/30 backface-hidden">
+                        <i class="fas fa-laugh-beam text-3xl text-roseGold mb-3"></i>
+                        <h3 class="font-serif font-semibold text-deepBurgundy">Razón #2</h3>
+                        <p class="text-xs text-gray-500 mt-1">Haz clic para voltear</p>
+                    </div>
+                    <div class="absolute inset-0 glass-dark rounded-2xl p-6 flex items-center justify-center text-center rotate-y-180 backface-hidden">
+                        <p class="text-white text-sm font-medium">Por que siempre que estoy contigo puedo ser yo sin sentirme juzgado.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reason 3 -->
+            <div class="perspective-1000 h-48 cursor-pointer group" onclick="flipCard(this)">
+                <div class="card-inner relative w-full h-full transform-style-3d transition-transform duration-700">
+                    <div class="absolute inset-0 glass rounded-2xl p-6 flex flex-col justify-center items-center text-center border border-roseGold/30 backface-hidden">
+                        <i class="fas fa-star text-3xl text-roseGold mb-3"></i>
+                        <h3 class="font-serif font-semibold text-deepBurgundy">Razón #3</h3>
+                        <p class="text-xs text-gray-500 mt-1">Haz clic para voltear</p>
+                    </div>
+                    <div class="absolute inset-0 glass-dark rounded-2xl p-6 flex items-center justify-center text-center rotate-y-180 backface-hidden">
+                        <p class="text-white text-sm font-medium">Por tu forma de ser tan única, especial y bonita que tienes.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reason 4 -->
+            <div class="perspective-1000 h-48 cursor-pointer group" onclick="flipCard(this)">
+                <div class="card-inner relative w-full h-full transform-style-3d transition-transform duration-700">
+                    <div class="absolute inset-0 glass rounded-2xl p-6 flex flex-col justify-center items-center text-center border border-roseGold/30 backface-hidden">
+                        <i class="fas fa-mug-hot text-3xl text-roseGold mb-3"></i>
+                        <h3 class="font-serif font-semibold text-deepBurgundy">Razón #4</h3>
+                        <p class="text-xs text-gray-500 mt-1">Haz clic para voltear</p>
+                    </div>
+                    <div class="absolute inset-0 glass-dark rounded-2xl p-6 flex items-center justify-center text-center rotate-y-180 backface-hidden">
+                        <p class="text-white text-sm font-medium">Por cada cosa linda de ti, tus ojitos, tu carita, tus labios, tu sonrisa, tu voz, tus besos, tus abrazos y muchisisisisimashh cosas mash.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reason 5 -->
+            <div class="perspective-1000 h-48 cursor-pointer group" onclick="flipCard(this)">
+                <div class="card-inner relative w-full h-full transform-style-3d transition-transform duration-700">
+                    <div class="absolute inset-0 glass rounded-2xl p-6 flex flex-col justify-center items-center text-center border border-roseGold/30 backface-hidden">
+                        <i class="fas fa-eye text-3xl text-roseGold mb-3"></i>
+                        <h3 class="font-serif font-semibold text-deepBurgundy">Razón #5</h3>
+                        <p class="text-xs text-gray-500 mt-1">Haz clic para voltear</p>
+                    </div>
+                    <div class="absolute inset-0 glass-dark rounded-2xl p-6 flex items-center justify-center text-center rotate-y-180 backface-hidden">
+                        <p class="text-white text-sm font-medium">Por que siempre alegras mi vida, sea el momento que sea, contigo siempre soy el más feliz.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reason 6 -->
+            <div class="perspective-1000 h-48 cursor-pointer group" onclick="flipCard(this)">
+                <div class="card-inner relative w-full h-full transform-style-3d transition-transform duration-700">
+                    <div class="absolute inset-0 glass rounded-2xl p-6 flex flex-col justify-center items-center text-center border border-roseGold/30 backface-hidden">
+                        <i class="fas fa-infinity text-3xl text-roseGold mb-3"></i>
+                        <h3 class="font-serif font-semibold text-deepBurgundy">Razón #6</h3>
+                        <p class="text-xs text-gray-500 mt-1">Haz clic para voltear</p>
+                    </div>
+                    <div class="absolute inset-0 glass-dark rounded-2xl p-6 flex items-center justify-center text-center rotate-y-180 backface-hidden">
+                        <p class="text-white text-sm font-medium">Te amo, porque eres tu, like perfecta unica y especial.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Interactive Love Coupon Book -->
+    <section id="coupons" class="py-24 px-4 max-w-5xl mx-auto relative z-10">
+        <div class="text-center mb-16">
+            <h2 class="font-serif text-4xl text-deepBurgundy font-bold">Cupones de Amor Canjeables</h2>
+            <div class="w-16 h-1 bg-roseGold mx-auto mt-3 rounded-full"></div>
+            <p class="text-gray-500 text-sm mt-2">Puedes canjear estos cupones cuando tú quieras</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Coupon 1 -->
+            <div class="glass p-6 rounded-2xl border-2 border-dashed border-roseGold/40 flex justify-between items-center relative overflow-hidden group">
+                <div>
+                    <span class="text-xs font-bold text-roseGold uppercase tracking-widest">Vale Por</span>
+                    <h3 class="font-serif text-xl font-bold text-deepBurgundy">Una Salida super aura al cine</h3>
+                    <p class="text-xs text-gray-500 mt-1">like obviomicribio cuando te den permiso.</p>
+                </div>
+                <button onclick="redeemCoupon(this)" class="bg-roseGold text-white text-xs px-4 py-2 rounded-full hover:bg-deepBurgundy transition shadow shrink-0 ml-4">
+                    Canjear
+                </button>
+            </div>
+
+            <!-- Coupon 2 -->
+            <div class="glass p-6 rounded-2xl border-2 border-dashed border-roseGold/40 flex justify-between items-center relative overflow-hidden group">
+                <div>
+                    <span class="text-xs font-bold text-roseGold uppercase tracking-widest">Vale Por</span>
+                    <h3 class="font-serif text-xl font-bold text-deepBurgundy">todos los besitos que quieras</h3>
+                    <p class="text-xs text-gray-500 mt-1">Válido para siempre.</p>
+                </div>
+                <button onclick="redeemCoupon(this)" class="bg-roseGold text-white text-xs px-4 py-2 rounded-full hover:bg-deepBurgundy transition shadow shrink-0 ml-4">
+                    Canjear
+                </button>
+            </div>
+
+            <!-- Coupon 3 -->
+            <div class="glass p-6 rounded-2xl border-2 border-dashed border-roseGold/40 flex justify-between items-center relative overflow-hidden group">
+                <div>
+                    <span class="text-xs font-bold text-roseGold uppercase tracking-widest">Vale Por</span>
+                    <h3 class="font-serif text-xl font-bold text-deepBurgundy">Salida a comer sushi </h3>
+                    <p class="text-xs text-gray-500 mt-1">Donde quieras y a la hora que quieras y obvio con permiso va.</p>
+                </div>
+                <button onclick="redeemCoupon(this)" class="bg-roseGold text-white text-xs px-4 py-2 rounded-full hover:bg-deepBurgundy transition shadow shrink-0 ml-4">
+                    Canjear
+                </button>
+            </div>
+
+            <!-- Coupon 4 -->
+            <div class="glass p-6 rounded-2xl border-2 border-dashed border-roseGold/40 flex justify-between items-center relative overflow-hidden group">
+                <div>
+                    <span class="text-xs font-bold text-roseGold uppercase tracking-widest">Vale Por</span>
+                    <h3 class="font-serif text-xl font-bold text-deepBurgundy">un super mega abracito</h3>
+                    <p class="text-xs text-gray-500 mt-1">Valido para siempre obvio</p>
+                </div>
+                <button onclick="redeemCoupon(this)" class="bg-roseGold text-white text-xs px-4 py-2 rounded-full hover:bg-deepBurgundy transition shadow shrink-0 ml-4">
+                    Canjear
+                </button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Love Letter & Final Photo Section -->
+    <section id="letter" class="py-24 px-4 max-w-3xl mx-auto relative z-10 space-y-12">
+        <div class="glass p-8 md:p-12 rounded-3xl shadow-xl border border-roseGold/30 relative">
+            <div class="text-center mb-8">
+                <i class="fas fa-envelope-open-text text-4xl text-roseGold mb-2"></i>
+                <h2 class="font-cursive text-4xl text-deepBurgundy font-bold">Una Carta Para Ti</h2>
+            </div>
+            
+            <div class="space-y-4 font-serif text-gray-700 leading-relaxed text-base md:text-lg">
+                <p>Mi amor,</p>
+                <p>
+                  Cami, like hace como un mes que estoy sin verte y pues me has hecho demasiada falta, obvio me encanta poder estar en llamada contigo, hablar siempre y poder compartir contigo momentos aunque estemos lejitos, queria hacerte esta como pagina y carta asi super aura, porque me gusta poder hacerte detallitos aunque no te los pueda dar en persona entonceshhhh esho.
+                </p>
+                <p>
+                   Entonces quiero decirte muchas cositas wujuuuu, como que desde julio o bueno desde hace más de un año JSJSJS, puedo decir que me gustabas, pero pues nunca fui como aura para decirtelo, hasta este año que empezamos a hablar en Julio y pueshhhh llegamos a este momento, donde de verdad estoy más que enamorado de la mujer tan perfecta que tengo a mi lado, o shea obvio tu, like saber que ereshhh mi amor, mi vida, mi todo es lo más bonito del mundo, porque de verdad tu cariño, tu amor y todo de ti, es lo único que quiero tener y obvio todooooo mi amoooor y todo mi cariñooooo y todoo todo todooooo de mi esh para ti, like te he querido siempre y empezamos a hablar y te quise muchisisimo mash y despues con el tiempo te empece a amar y ese amor cada día crece muchisisimo más y es algo que nunca va a terminar, quisiera poder estar contigo like cualquier día y que pudieramos hacr mil y un cosas y obvio esos días pueden llegar y van a ser los mejores, donde podamos hacer maraton de pelis de amor, pintar cuadros asi super aura, hacer algo de comer(aunque se nos queme todo), y muchisisimas cosas más que contigo siempre va a ser lo mejor, poder recordarme del principio donde estabamos haciendo nada en juventud y desde ahí saber que contigo queria todo lo mas bonito, y recordar cada tontada que nos pasaba o que te regañaban por hablar conmigo y no cuidar el lugar SJSJJS, hastaaaaaa las salidas donde casi que nos dormiamos abrazaditos, y yo con tu manita, acostaditos y de que seis o siete besitos, y obvio como olvidar a cookie y la cartita tan hemosha que hiciste para mi, que al final se vuelven los mejores recuerdos del mundoooooo y que siempre habran más y más. y como al final de todo nunca tiene que faltar algo de musica sabes mi amor, que como diria alvarito, "Te quiero siempre a mi ladito como yoko, oh, no te vayas nunca".
+                </p>
+                <p>
+                    Al final mi amor, quiero decirte que te amo, te amo de verdad, te amo con todo mi corazón, mi alma y mi ser, porque siempre me haces el más feliz sea el momento que sea, gracias por siempre etar conmigo  sher mi coshita hemosha, mi amor, mi vida, mi cielo, mi niña, mi pinchecha y la razón de mi felicidad, te prometo mi amor siempre estar para ti y apoyarte en todooooo, se que no hemos podido salir y ashi pero espero poder verte pronto y poder estar junto a ti todo el tiempo posible.
+                    <p class="font-bold text-roseGold">Te Amo Cami.</p>
+                </p>
+                <div class="pt-6 text-right font-cursive text-3xl text-roseGold font-bold">
+                    Con todo mi amor,<br>
+                    <span class="text-deepBurgundy text-2xl font-sans font-semibold"> Diego 💗</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Special Photo Below Letter (Tamaño adaptativo automático) -->
+        <div class="glass p-4 rounded-3xl shadow-2xl border border-roseGold/30 text-center max-w-xl mx-auto">
+            <div class="rounded-2xl overflow-hidden mb-4 shadow-inner">
+                <img id="love-image" src="imagen2.jpg" alt="Nosotros Juntos" class="max-w-full h-auto mx-auto rounded-2xl hover:scale-105 transition duration-700 block">
+            </div>
+            <p class="font-cursive text-2xl text-deepBurgundy font-semibold">"Tú y yo, siempre mi lugar favorito."</p>
+        </div>
+    </section>
+
+    <!-- Sección 11:11 Protegida con Clave (DESPUÉS DE LA CARTA) -->
+    <section id="wish1111" class="py-24 px-4 max-w-3xl mx-auto relative z-10">
+        
+        <!-- Estado 1: Formulario de Bloqueo / Clave -->
+        <div id="lock-screen-1111" class="glass p-8 md:p-12 rounded-3xl shadow-xl border border-roseGold/30 text-center space-y-6">
+            <div class="w-20 h-20 mx-auto rounded-full bg-roseGold/10 flex items-center justify-center animate-pulse border border-roseGold/30 text-roseGold">
+                <i class="fas fa-lock text-3xl"></i>
+            </div>
+            <h2 class="font-cursive text-4xl md:text-5xl text-deepBurgundy font-bold">My love💗</h2>
+            <p class="font-serif text-gray-600 text-sm md:text-base">Something special for you.</p>
+            
+            <div class="max-w-xs mx-auto space-y-4 pt-2">
+                <input type="password" id="pass-input" placeholder="Introduce la contraseña..." class="w-full px-5 py-3 rounded-full text-center border-2 border-roseGold/40 focus:border-roseGold focus:outline-none bg-white/70 text-gray-800 placeholder-gray-400 font-semibold shadow-inner">
+                <button onclick="checkPass()" class="w-full py-3.5 bg-gradient-to-r from-roseGold to-romanticRed text-white font-bold rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all">
+                    Desbloquea
+                </button>
+            </div>
+            <p id="error-msg" class="text-xs text-romanticRed font-semibold hidden animate-bounce">
+                Amoooooor esha no eshhhh, intenta de nuevo chi?🥺
+            </p>
+        </div>
+
+        <!-- Estado 2: Contenido 11:11 Revelado (Oculto inicialmente) -->
+        <div id="content-1111" class="hidden glass p-8 md:p-12 rounded-3xl shadow-xl border border-roseGold/30 text-center space-y-6 transition-all duration-1000 transform scale-95 opacity-0">
+            <div class="inline-block p-3 rounded-full bg-roseGold/10 text-roseGold animate-pulse">
+                <i class="fas fa-sparkles text-3xl"></i>
+            </div>
+            
+            <h2 class="font-cursive text-5xl md:text-6xl text-deepBurgundy font-bold">💗11:11💗</h2>
+            <p class="font-serif text-roseGold text-lg font-semibold tracking-wide">Un Deseo Hecho Realidad ✨</p>
+            
+            <div class="w-16 h-1 bg-roseGold mx-auto rounded-full"></div>
+
+            <!-- Imagen Sección 11:11 (Tamaño adaptable automático) -->
+            <div class="glass p-3 rounded-2xl shadow-lg my-6 max-w-md mx-auto">
+                <div class="rounded-xl overflow-hidden shadow-inner">
+                    <img id="image-1111" src="imagen3.jpg" alt="Nuestro 11:11" class="max-w-full h-auto mx-auto rounded-xl hover:scale-105 transition duration-700 block">
+                </div>
+            </div>
+
+            <!-- Texto de la Sección 11:11 -->
+            <div class="font-serif text-gray-700 leading-relaxed text-base md:text-lg space-y-4">
+                <p>
+                    dicen que a las 11:11 se pide un deseo en silencio porque si lo cuentas no se cumple, pero me di cuenta de que eso es mentira. Todos los días a las 11:11 mi único deseo siempre has sido tú, y hoy me doy cuenta de que el cielo no solo me escuchó, sino que me cumplio el mejor deseo, que ha sido tenerte en mi vida.
+                </p>
+                <p class="italic text-deepBurgundy font-semibold text-lg md:text-xl">
+                    Pues al final puede que a veces se nos pasa la hora, pero siempre tu seras ese deseo para toda mi vida, poder estar y compartir siempre contigo. 💗
+                </p>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 text-center text-xs text-gray-500 relative z-10 border-t border-roseGold/10">
+        <p>Hecho con amor especial y unicamente para ti.</p>
+        <p class="mt-1 font-cursive text-lg text-roseGold">Te amo muchisisimo</p>
+    </footer>
+
+    <!-- Notification Container for Coupon Redemption -->
+    <div id="toast" class="fixed bottom-5 right-5 glass-dark text-white px-6 py-4 rounded-xl shadow-2xl transition duration-500 transform translate-y-32 opacity-0 z-50 flex items-center space-x-3">
+        <i class="fas fa-check-circle text-emerald-400 text-xl"></i>
+        <div>
+            <h4 class="font-bold text-sm">Cupon Canjeadooo</h4>
+            <p class="text-xs text-gray-200" id="toast-msg">Tomale cap y pues obvio se cumple cuando estemosh juntitosh</p>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Start Experience & Auto Play Music
+        function startExperience() {
+            const welcome = document.getElementById('welcome-screen');
+            const audio = document.getElementById('bg-audio');
+            
+            welcome.classList.add('opacity-0');
+            setTimeout(() => {
+                welcome.style.display = 'none';
+            }, 1000);
+
+            // Attempt Autoplay Music
+            audio.play().catch(e => console.log("Audio play blocked: ", e));
+            isPlaying = true;
+            document.getElementById('music-icon').classList.remove('fa-music');
+            document.getElementById('music-icon').classList.add('fa-pause');
+        }
+
+        // --- 1. Background Particles & Floating Hearts Canvas ---
+        const canvas = document.getElementById('canvas-hearts');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        class HeartParticle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * width;
+                this.y = height + Math.random() * 100;
+                this.size = Math.random() * 12 + 6;
+                this.speedY = Math.random() * 1.5 + 0.5;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.opacity = Math.random() * 0.5 + 0.3;
+                this.color = ['#B76E79', '#FFD1DC', '#4A0E17', '#FF69B4'][Math.floor(Math.random() * 4)];
+            }
+
+            update() {
+                this.y -= this.speedY;
+                this.x += this.speedX;
+
+                if (this.y < -20) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.translate(this.x, this.y);
+                ctx.scale(this.size / 10, this.size / 10);
+                // Draw heart shape
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(-5, -5, -10, 0, 0, 10);
+                ctx.bezierCurveTo(10, 0, 5, -5, 0, 0);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        const particles = [];
+        for (let i = 0; i < 35; i++) {
+            particles.push(new HeartParticle());
+        }
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateCanvas);
+        }
+
+        window.onload = function() {
+            animateCanvas();
+        };
+
+        // --- 2. Interactive Card Flip ---
+        function flipCard(card) {
+            const inner = card.querySelector('.card-inner');
+            inner.classList.toggle('rotate-y-180');
+        }
+
+        // --- 3. Redeem Coupon Toast Notification ---
+        function redeemCoupon(button) {
+            button.innerText = "Canjeado ✓";
+            button.disabled = true;
+            button.classList.remove('bg-roseGold', 'hover:bg-deepBurgundy');
+            button.classList.add('bg-emerald-600', 'cursor-not-allowed');
+
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-32', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-32', 'opacity-0');
+            }, 4000);
+        }
+
+        // --- 4. Password Protection logic for 11:11 ---
+        function checkPass() {
+            const input = document.getElementById('pass-input').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            const lockScreen = document.getElementById('lock-screen-1111');
+            const content = document.getElementById('content-1111');
+
+            if (input === '03101907') {
+                errorMsg.classList.add('hidden');
+                lockScreen.classList.add('hidden');
+                content.classList.remove('hidden');
+                setTimeout(() => {
+                    content.classList.remove('scale-95', 'opacity-0');
+                    content.classList.add('scale-100', 'opacity-100');
+                }, 50);
+            } else {
+                errorMsg.classList.remove('hidden');
+            }
+        }
+
+        // Allow pressing Enter key to submit password
+        document.getElementById('pass-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkPass();
+            }
+        });
+
+        // --- 5. Music Player Toggle ---
+        const musicBtn = document.getElementById('music-toggle');
+        const audio = document.getElementById('bg-audio');
+        const musicIcon = document.getElementById('music-icon');
+        const musicText = document.getElementById('music-text');
+        let isPlaying = false;
+
+        musicBtn.addEventListener('click', () => {
+            if (!isPlaying) {
+                audio.play();
+                musicIcon.classList.remove('fa-music');
+                musicIcon.classList.add('fa-pause');
+                musicText.innerText = "Pausar";
+                isPlaying = true;
+            } else {
+                audio.pause();
+                musicIcon.classList.remove('fa-pause');
+                musicIcon.classList.add('fa-music');
+                musicText.innerText = "Reproducir";
+                isPlaying = false;
+            }
+        });
+    </script>
+</body>
+</html>
